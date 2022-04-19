@@ -63,7 +63,7 @@ const S = {
     list-style: none;
     width: 100%;
   `,
-  Option: styled.div`
+  Option: styled.button`
     display: flex;
     align-items: center;
     padding: 2px 8px;
@@ -72,6 +72,11 @@ const S = {
     border: none;
     background: transparent;
     font: inherit;
+
+    //Instead of truncate
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
     line-height: normal;
     -webkit-font-smoothing: inherit;
@@ -83,6 +88,13 @@ const S = {
       background: #b7faac;
     }
   `,
+};
+
+export const truncate = (string: string, maxLength: number) => {
+  if (string.length < maxLength) {
+    return string;
+  }
+  return string.slice(0, Math.max(0, maxLength)) + '…';
 };
 
 const DropDownSelect = ({ labelText, options }: DropDownSelectProps) => {
@@ -107,7 +119,7 @@ const keyEventHandler = ( e: KeyboardEvent<HTMLSpanElement>) => {
   return (
     <S.SelectContainer>
       <S.SelectLabel htmlFor="base-select">{labelText}</S.SelectLabel>
-      <S.Select id="base-select" onClick={() => setIsOpen(!isOpen)} onChange={() => setValue(value)}>
+      <S.Select id="base-select" onClick={() => setIsOpen(!isOpen)} onChange={(e) => setValue(e.target.value)}>
         {value}
       </S.Select>
       {isOpen && (
@@ -119,14 +131,16 @@ const keyEventHandler = ( e: KeyboardEvent<HTMLSpanElement>) => {
             onKeyDown={keyEventHandler}
             aria-activedescendant={`option__${activeElementIndex}`}
           >
-            {options?.map(({ text, pillColor }, index) => (
+            {options?.map(({ text, pillColor }, index) => {
+              const textToDisplay = truncate(text,40)
+              return (
               <S.OptionElement key={index}>
                 <S.Option id={`option__${index}`} role="option" aria-selected={index === activeElementIndex} data-value={activeElementIndex}>
                   <S.Pill color={pillColor} />
-                  {text}
+                  {textToDisplay}
                 </S.Option>
               </S.OptionElement>
-            ))}
+            )})}
           </S.OptionsList>
         </S.ListContainer>
       )}
